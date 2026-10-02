@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> Calculator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0e1535;min-height:100vh;color:#fff;font-family:Segoe UI,sans-serif;display:flex;align-items:center;justify-content:center;padding:20px}
+.wrap{width:100%;max-width:1100px;display:flex;gap:24px;flex-wrap:wrap}
+.left{flex:1;min-width:300px}
+.right{width:380px;max-width:100%}
+.tag{border:1px solid #ff4d6d;padding:6px 12px;font-size:12px;letter-spacing:2px;display:inline-block}
+h1{font-size:48px;line-height:1;margin-top:18px} h1 span{font-size:16px;letter-spacing:5px;opacity:.6;display:block;margin-top:6px}
+.info{margin-top:20px;display:grid;gap:12px}
+.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:16px;display:flex;gap:12px;animation:fade.6s both}
+.card:nth-child(2){animation-delay:.1s}.card:nth-child(3){animation-delay:.2s}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.dot{width:36px;height:36px;background:#5b6cff;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+
+.calc{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:24px;padding:16px;backdrop-filter:blur(20px);box-shadow:0 30px 60px rgba(0,0,0,.5);animation:pop.7s}
+@keyframes pop{0%{transform:scale(.9) translateY(20px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+.screen{background:rgba(0,0,0,.6);border-radius:14px;padding:16px;text-align:right;overflow:hidden;position:relative}
+.screen::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,#2cf6ff,transparent);animation:scan 2s infinite}
+@keyframes scan{to{left:100%}}
+#h{opacity:.5;font-size:13px;min-height:16px;font-family:monospace;white-space:nowrap;overflow:hidden}
+#o{font-family:monospace;font-size:38px;margin-top:4px;word-break:break-all;transition:.2s}
+#o.bad{color:#ff5a6a;animation:shake.3s} @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+button{border:0;border-radius:12px;padding:15px;font-size:18px;font-weight:700;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;transition:.15s}
+button:active{transform:scale(.92)} button:hover{background:rgba(255,255,255,.18)}
+.op{background:rgba(91,108,255,.35)}.eq{background:#fff;color:#000;box-shadow:0 0 20px rgba(255,255,255,.4)}.cl{color:#ff6b7a}.fn{color:#2cf6ff}
+.blob{position:fixed;width:400px;height:400px;background:radial-gradient(circle,#2cf6ff33,#5b6cff33);border-radius:50%;filter:blur(40px);top:-100px;right:-100px;animation:float 6s infinite ease-in-out;pointer-events:none}
+@keyframes float{50%{transform:translate(-30px,30px) scale(1.1)}}
+</style>
+</head>
+<body>
+<div class="blob"></div>
+<div class="wrap">
+  <div class="left">
+    
+    <h1>CALCULATOR <span>WEB APPLICATION</span></h1>
+    <div class="info">
+      <div class="card"><div class="dot">◍</div><div><b>DOM Manipulation</b><br><small>Live display update, history without reload</small></div></div>
+      <div class="card"><div class="dot">⌨</div><div><b>Event Handling</b><br><small>Equal button, keyboard, error handling</small></div></div>
+      <div class="card"><div class="dot">⚙</div><div><b>Arithmetic</b><br><small>%, ±,., × ÷ with safe parsing</small></div></div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="calc">
+      <div class="screen"><div id="h"></div><div id="o">0</div></div>
+      <div class="keys">
+        <button class="cl" onclick="A('c')">AC</button><button class="fn" onclick="A('p')">±</button><button class="fn" onclick="P('%')">%</button><button class="op" onclick="P('/')">÷</button>
+        <button onclick="P('7')">7</button><button onclick="P('8')">8</button><button onclick="P('9')">9</button><button class="op" onclick="P('*')">×</button>
+        <button onclick="P('4')">4</button><button onclick="P('5')">5</button><button onclick="P('6')">6</button><button class="op" onclick="P('-')">−</button>
+        <button onclick="P('1')">1</button><button onclick="P('2')">2</button><button onclick="P('3')">3</button><button class="op" onclick="P('+')">+</button>
+        <button onclick="P('0')" style="grid-column:span 2">0</button><button onclick="P('.')">.</button><button class="eq" onclick="A('=')">=</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+let e='',j=false;const H=document.getElementById('h'),O=document.getElementById('o');
+function R(){O.textContent=e?e.replace(/\*/g,'×').replace(/\//g,'÷'):'0'}
+function S(s){if(/[^0-9+\-*/%.()]/.test(s))throw 1; s=s.replace(/%/g,'/100'); if(/^[+*/%]/.test(s)) s='0'+s; return Function('return ('+s+')')()}
+function P(v){if(j&&/[0-9.(]/.test(v)){e='';j=false} if(v=='.'){let l=e.split(/[\+\-\*\/]/).pop(); if(l.includes('.'))return} e+=v; R()}
+function A(a){
+ if(a=='c'){e='';H.textContent='';O.textContent='0';O.classList.remove('bad')}
+ else if(a=='='){try{if(!e)return;let r=S(e);if(!isFinite(r))throw 0; H.textContent=e.replace(/\*/g,'×').replace(/\//g,'÷')+' ='; O.textContent=(+r.toFixed(10)).toString(); e=r.toString(); j=true} catch(err){O.textContent=err===0?'Math Error':'Error'; O.classList.add('bad'); H.textContent=err===0?'Cannot /0':'Invalid'}}
+ else if(a=='p'){let m=e.match(/(-?\d*\.?\d+)$/); if(m){let n=m[1]; e=e.slice(0,-n.length)+(n[0]=='-'?n.slice(1):'-'+n); R()}}
+}
+addEventListener('keydown',k=>{if(/[0-9+\-*/%.()]/.test(k.key)){P(k.key);k.preventDefault()} else if(k.key=='Enter'||k.key=='='){A('=');k.preventDefault()} else if(k.key=='Escape'){A('c')} else if(k.key=='Backspace'){e=e.slice(0,-1);R()}})
+</script>
+</body>
+</html>
